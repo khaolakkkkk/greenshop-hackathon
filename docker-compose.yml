@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.5
+    container_name: greenshop-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: greenshop
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    volumes:
+      - ./database_dump.sql:/docker-entrypoint-initdb.d/database_dump.sql
+    ports:
+      - "3306:3306"
+
+  web:
+    build: .
+    container_name: greenshop-web
+    restart: always
+    ports:
+      - "81:80"
+    depends_on:
+      - db
