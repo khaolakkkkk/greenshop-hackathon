@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git'
+                git branch: 'main', url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', credentialsId: 'docker_id'
             }
         }
 
@@ -34,8 +34,8 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose down'
-                    sh 'docker-compose up -d'
+                    sh 'docker-compose down || true'
+                    sh 'docker-compose up -d --build'
                 }
             }
         }
