@@ -1,57 +1,44 @@
 pipeline {
     agent any
-    
+
     environment {
-        registryProjet = 'khaolakkkkk/greenshop-hackathon'  // Met ton projet ici
-        registryCredential = 'docker_id' // Utilisation de l'ID de credential que tu as configuré
-        IMAGE = "${registryProjet}:latest"
+        DOCKER_HUB_CREDENTIALS = 'docker_id'
+        DOCKER_IMAGE = "khaolakkkkk/greenshop-web"
     }
 
     stages {
-        stage('Clone') {
+        stage('Checkout') {
             steps {
-                checkout scm
+                git url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git'
             }
         }
-        
-        stage('Build') {
+
+        stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("${IMAGE}", '.')
+                    sh 'docker build -t $DOCKER_IMAGE:latest .'    
                 }
             }
         }
-        
-        stage('Run') {
+
+        stage('Push to DockerHub') {
             steps {
                 script {
-                    // Nettoyer les anciens conteneurs
-                    sh "docker rm -f srvweb || true"
-                    
-                    // Lancer le conteneur
-                    dockerImage.run("-d --name srvweb -p 8000:80")
-                }
-            }
-        }
-        
-        stage('Push') {
-            steps {
-                script {
-                    docker.withRegistry('https://registry.hub.docker.com', registryCredential) {
-                        dockerImage.push('latest')
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_id') {
+                        sh 'docker push $DOCKER_IMAGE:latest'
                     }
                 }
             }
         }
-    }
 
-    post {
-        always {
-            script {
-                // Nettoyer après la fin
-                sh "docker rm -f srvweb || true"
-                sh "docker rmi ${IMAGE} || true"
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d'
+                }
             }
         }
     }
 }
+
