@@ -6,10 +6,10 @@ services:
     container_name: greenshop-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: greenshop
-      MYSQL_USER: user
-      MYSQL_PASSWORD: userpassword
+      MYSQL_ROOT_PASSWORD: rootpassword  
+      MYSQL_DATABASE: greenshop          
+      MYSQL_USER: greenshop_user         
+      MYSQL_PASSWORD: your_secure_password  
     volumes:
       - ./database_dump.sql:/docker-entrypoint-initdb.d/database_dump.sql
     ports:
@@ -19,6 +19,14 @@ services:
     build: .
     container_name: greenshop-web
     restart: always
+    environment:
+      DB_HOST: localhost
+      DB_NAME: greenshop
+      DB_USER: greenshop_user
+      DB_PASSWORD: your_secure_password
+    volumes:
+      - ./greenshop/:/var/www/html/
+      - ./greenshop.conf:/etc/apache2/sites-available/greenshop.conf
     ports:
       - "81:80"
     depends_on:
