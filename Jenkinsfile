@@ -19,7 +19,7 @@ pipeline {
         stage('Download Greenshop') {
             steps {
                 script {
-                    // Assure-toi que le dossier greenshop est bien téléchargé
+                   
                     sh 'git clone https://github.com/khaolakkkkk/greenshop-hackathon.git'
                     sh 'cp -R greenshop-hackathon/greenshop/ .'
                 }
