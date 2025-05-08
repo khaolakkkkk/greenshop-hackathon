@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS = 'docker_hub_id' // Identifiant Docker Hub
         GITHUB_CREDENTIALS = 'github_id' // Identifiant GitHub
-        DOCKER_IMAGE = "khaola15/greenshop-web"
+        DOCKER_IMAGE = "khaola15/greenshop-web" // Nom de l'image Docker
     }
 
     stages {
@@ -19,10 +19,8 @@ pipeline {
         stage('Prepare Workspace') {
             steps {
                 script {
-                    // Si un dossier "greenshop" existe déjà, on le supprime pour éviter les erreurs
-                    sh 'rm -rf greenshop'
-                    // Copier directement le dossier "greenshop" dans le workspace
-                    sh 'cp -R ./greenshop-hackathon/greenshop/ ./greenshop'
+                    // Lister les fichiers pour vérifier
+                    sh 'ls -l'
                 }
             }
         }
@@ -30,6 +28,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    // Construction de l'image Docker
                     sh 'docker build -t ${DOCKER_IMAGE}:latest .'
                 }
             }
@@ -50,6 +49,7 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
+                    // Pousser l'image sur DockerHub
                     sh 'docker push ${DOCKER_IMAGE}:latest'
                 }
             }
@@ -58,6 +58,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    // Utilisation de Docker Compose pour déployer
                     sh 'docker-compose down || true'
                     sh 'docker-compose up -d --build'
                 }
