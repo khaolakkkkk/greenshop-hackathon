@@ -10,7 +10,7 @@ pipeline {
             steps {
                 git branch: 'main', 
                     url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', 
-                    credentialsId: 'github_id' // Utilise ton ID GitHub Credential ici
+                    credentialsId: 'github_id'
             }
         }
 
