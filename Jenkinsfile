@@ -3,17 +3,18 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = 'docker_hub_id' // Identifiant Docker Hub
-        GITHUB_CREDENTIALS = 'github_id' // Identifiant GitHub
-        DOCKER_IMAGE = "khaola15/greenshop-web"
+        DOCKER_IMAGE = "khaola15/greenshop-web" // Remplacez par votre nom d'utilisateur Docker Hub
     }
 
     stages {
-        stage('Checkout') {
+        stage('Prepare Workspace') {
             steps {
                 script {
-                    git branch: 'main', 
-                        url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', 
-                        credentialsId: "${GITHUB_CREDENTIALS}"
+                    // Utiliser le lien symbolique
+                    sh 'cp -R /var/lib/jenkins/workspace/web-docker/greenshop .'
+                    sh 'cp /var/lib/jenkins/workspace/web-docker/greenshop.conf .'
+                    sh 'cp /var/lib/jenkins/workspace/web-docker/Dockerfile .'
+                    sh 'cp /var/lib/jenkins/workspace/web-docker/docker-compose.yml .'
                 }
             }
         }
@@ -45,6 +46,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    sh 'docker-compose down || true'
+                    sh 'docker-compose up -d --build'
+                }
+            }
+        }
     }
 }
-
