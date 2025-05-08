@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = 'docker_hub_id' // Identifiant Docker Hub
-        GITHUB_CREDENTIALS = 'docker_id' // Identifiant GitHub
-        DOCKER_IMAGE = "khaolakkkkk/greenshop-web"
+        GITHUB_CREDENTIALS = 'github_id'        // Identifiant GitHub
+        DOCKER_IMAGE = "khaola15/greenshop-web" // Remplacez par votre nom d'utilisateur Docker Hub
     }
 
     stages {
@@ -19,7 +19,8 @@ pipeline {
         stage('Download Greenshop') {
             steps {
                 script {
-                   
+                    // Cloner le dépôt et copier les fichiers
+                    sh 'rm -rf greenshop-hackathon'
                     sh 'git clone https://github.com/khaolakkkkk/greenshop-hackathon.git'
                     sh 'cp -R greenshop-hackathon/greenshop/ .'
                 }
@@ -57,6 +58,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+                    // Vous pouvez personnaliser la commande Docker Compose ici
                     sh 'docker-compose down || true'
                     sh 'docker-compose up -d --build'
                 }
@@ -64,3 +66,4 @@ pipeline {
         }
     }
 }
+
