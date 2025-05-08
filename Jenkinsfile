@@ -2,21 +2,24 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = 'docker_id' // Remplace par ton ID Docker dans Jenkins
+        DOCKER_HUB_CREDENTIALS = 'docker_hub_id' // Identifiant Docker Hub
+        GITHUB_CREDENTIALS = 'docker_id' // Identifiant GitHub
         DOCKER_IMAGE = "khaolakkkkk/greenshop-web"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', credentialsId: 'github_creds'
+                git branch: 'main', 
+                    url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', 
+                    credentialsId: "${GITHUB_CREDENTIALS}"
             }
         }
 
         stage('Download Greenshop') {
             steps {
                 script {
-                    // Télécharge le dossier greenshop directement depuis GitHub
+                    // Assure-toi que le dossier greenshop est bien téléchargé
                     sh 'git clone https://github.com/khaolakkkkk/greenshop-hackathon.git'
                     sh 'cp -R greenshop-hackathon/greenshop/ .'
                 }
@@ -26,7 +29,19 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t $DOCKER_IMAGE:latest .'
+                    sh 'docker build -t ${DOCKER_IMAGE}:latest .'
+                }
+            }
+        }
+
+        stage('Login to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: "${DOCKER_HUB_CREDENTIALS}", 
+                                                      usernameVariable: 'DOCKER_USERNAME', 
+                                                      passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
                 }
             }
         }
@@ -34,9 +49,7 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker_id') {
-                        sh 'docker push $DOCKER_IMAGE:latest'
-                    }
+                    sh 'docker push ${DOCKER_IMAGE}:latest'
                 }
             }
         }
@@ -51,4 +64,3 @@ pipeline {
         }
     }
 }
-
