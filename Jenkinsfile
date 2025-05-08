@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_USERNAME = 'khaola15'
-        DOCKER_PASSWORD = 'dFA^WK;h^kkY2zPA'
+        DOCKER_PASSWORD = 'FA^WK;h^kkY2zPA'
         DOCKER_IMAGE = "khaola15/greenshop-web"
     }
 
