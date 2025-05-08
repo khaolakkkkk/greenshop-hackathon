@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+        DOCKER_USERNAME = 'khaola15'
+        DOCKER_PASSWORD = 'dFA^WK;h^kkY2zPA'
         DOCKER_IMAGE = "khaola15/greenshop-web"
     }
 
@@ -33,11 +35,7 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker_hub_credential', 
-                                                     usernameVariable: 'DOCKER_USERNAME', 
-                                                     passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                    }
+                    sh 'docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}'
                 }
             }
         }
@@ -53,7 +51,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Forcer l’arrêt et la suppression des conteneurs existants
+                    // Forcer l'arrêt et la suppression des conteneurs existants
                     sh '''
                     docker-compose down || true
                     docker rm -f greenshop-db || true
