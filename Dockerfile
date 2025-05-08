@@ -15,6 +15,8 @@ COPY greenshop/ /var/www/html/
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
+RUN sed -i '/^\/\*M!999999\\- enable the sandbox mode \*\//d' database_dump.sql
+
 # Expose le port 80 (Apache)
 EXPOSE 80
 
