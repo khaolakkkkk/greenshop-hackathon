@@ -4,23 +4,16 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS = 'docker_hub_id' // Identifiant Docker Hub
         GITHUB_CREDENTIALS = 'github_id' // Identifiant GitHub
-        DOCKER_IMAGE = "khaola15/greenshop-web" // Nom de l'image Docker
+        DOCKER_IMAGE = "khaola15/greenshop-web"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', 
-                    url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', 
-                    credentialsId: "${GITHUB_CREDENTIALS}"
-            }
-        }
-
-        stage('Prepare Workspace') {
-            steps {
                 script {
-                    // Lister les fichiers pour vérifier
-                    sh 'ls -l'
+                    git branch: 'main', 
+                        url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', 
+                        credentialsId: "${GITHUB_CREDENTIALS}"
                 }
             }
         }
@@ -28,7 +21,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Construction de l'image Docker
                     sh 'docker build -t ${DOCKER_IMAGE}:latest .'
                 }
             }
@@ -49,22 +41,10 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    // Pousser l'image sur DockerHub
                     sh 'docker push ${DOCKER_IMAGE}:latest'
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    // Utilisation de Docker Compose pour déployer
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d --build'
                 }
             }
         }
     }
 }
-
 
