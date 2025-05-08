@@ -3,18 +3,25 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = 'docker_hub_id' // Identifiant Docker Hub
+        GITHUB_CREDENTIALS = 'docker_id' // Identifiant GitHub
         DOCKER_IMAGE = "khaola15/greenshop-web" // Remplacez par votre nom d'utilisateur Docker Hub
+        WORKSPACE_DIR = '/var/lib/jenkins/workspace/web-docker'
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                    url: 'https://github.com/khaolakkkkk/greenshop-hackathon.git', 
+                    credentialsId: "${GITHUB_CREDENTIALS}"
+            }
+        }
+
         stage('Prepare Workspace') {
             steps {
                 script {
-                    // Utiliser le lien symbolique
-                    sh 'cp -R /var/lib/jenkins/workspace/web-docker/greenshop .'
-                    sh 'cp /var/lib/jenkins/workspace/web-docker/greenshop.conf .'
-                    sh 'cp /var/lib/jenkins/workspace/web-docker/Dockerfile .'
-                    sh 'cp /var/lib/jenkins/workspace/web-docker/docker-compose.yml .'
+                    // Utilise directement le dossier existant de greenshop
+                    sh 'ls -l ${WORKSPACE_DIR}/greenshop'
                 }
             }
         }
@@ -22,7 +29,10 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_IMAGE}:latest .'
+                    sh '''
+                    cd ${WORKSPACE_DIR}
+                    docker build -t ${DOCKER_IMAGE}:latest .
+                    '''
                 }
             }
         }
@@ -42,7 +52,9 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    sh 'docker push ${DOCKER_IMAGE}:latest'
+                    sh '''
+                    docker push ${DOCKER_IMAGE}:latest
+                    '''
                 }
             }
         }
@@ -50,10 +62,15 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d --build'
+                    // Utiliser docker-compose pour déployer
+                    sh '''
+                    cd ${WORKSPACE_DIR}
+                    docker-compose down || true
+                    docker-compose up -d --build
+                    '''
                 }
             }
         }
     }
 }
+
