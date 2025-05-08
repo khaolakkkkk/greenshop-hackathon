@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USERNAME = 'khaola15'
-        DOCKER_PASSWORD = 'FA^WK;h^kkY2zPA'
         DOCKER_IMAGE = "khaola15/greenshop-web"
     }
 
@@ -18,7 +16,6 @@ pipeline {
         stage('Prepare Workspace') {
             steps {
                 script {
-                    // Utiliser le lien symbolique créé
                     sh 'ls -l /var/lib/jenkins/workspace/web-docker/greenshop'
                     sh 'cp -R /var/lib/jenkins/workspace/web-docker/greenshop .'
                 }
@@ -36,7 +33,11 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
-                    sh 'echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin'
+                    withCredentials([usernamePassword(credentialsId: 'docker_hub_credential', 
+                                                     usernameVariable: 'DOCKER_USERNAME', 
+                                                     passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
                 }
             }
         }
@@ -52,12 +53,16 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose down || true'
-                    sh 'docker-compose up -d --build'
+                    // Forcer l’arrêt et la suppression des conteneurs existants
+                    sh '''
+                    docker-compose down || true
+                    docker rm -f greenshop-db || true
+                    docker rm -f greenshop-web || true
+                    docker-compose up -d --build
+                    '''
                 }
             }
         }
     }
 }
-
 
