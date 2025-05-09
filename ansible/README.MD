@@ -7,7 +7,7 @@ inventorybdd.ini :
 Il se compose du serveur de base de données qui vas être modifier par notre playbookbdd.yml, il faut modifié l'IP et la clé SSH dans ce document pour l'adapter à votre infrastructure.
 
 playbook.yml :
-Il se compose de l'installation de nginx et de php8.3, il configure aussi nginx pour le site s'appelant GREENSHOP, crée aussi le lien symbolique sur le reverse proxy et supprime le site par défaut de nginx. Modifie le db.php du site pour qu'il puisse se connecter à notre nouvelle base de données se trouvant sur une machine ec2 d'AWS.
+Il se compose de l'installation de nginx et de php8.3, il configure aussi nginx pour le site s'appelant GREENSHOP, crée aussi le lien symbolique et supprime le site par défaut de nginx. Modifie le db.php du site pour qu'il puisse se connecter à notre nouvelle base de données se trouvant sur une machine ec2 d'AWS.
 A modifié la variable source_path qui contient les fichiers du site sur la machine ansible.
 
 playbookbdd.yml :
