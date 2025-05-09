@@ -18,3 +18,5 @@ La mise en place d'une infrastructure évolutive sur AWS avec un VPC sécurisé,
 L'utilisation de Terraform pour la gestion de l'infrastructure en tant que code (IaC).
 
 La configuration automatisée des serveurs avec Ansible.
+
+![Schéma AWS DevOps](https://github.com/user-attachments/assets/b6858f15-6171-403c-bc3c-a2efb267a65a)
