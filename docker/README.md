@@ -8,7 +8,9 @@ Construire l'image Docker : docker build -t nom_image .
 
 Lancer le conteneur : docker run -d -p 80:80 nom_image
 
-Lancer tous les services définis : docker-compose up -d
+Lancer tous les services : docker-compose up -d
+
+Pour arreter les services il faudra utiliser : docker-compose down -v
 
 Jenkins
 
