@@ -1,0 +1,85 @@
+---
+- name: Déploiement du site Greenshop
+  hosts: all
+  become: yes
+  vars:
+    source_path: "/home/ubuntu/ansible/greenshop"
+    destination_path: "/var/www/html/greenshop"
+    php_version: "8.3"
+
+  tasks:
+    - name: Mettre à jour les paquets
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Installer Nginx, PHP et extensions nécessaires
+      apt:
+        name:
+          - nginx
+          - php{{ php_version }}
+          - php{{ php_version }}-fpm
+          - php{{ php_version }}-mysql
+        state: present
+
+    - name: Copier les fichiers Greenshop
+      copy:
+        src: "{{ source_path }}/"
+        dest: "{{ destination_path }}/"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+
+    - name: Configurer Nginx pour Greenshop
+      copy:
+        dest: /etc/nginx/sites-available/greenshop
+        content: |
+          server {
+              listen 80;
+              server_name _;
+
+              root /var/www/html/greenshop;
+              index index.php index.html;
+
+              location / {
+                  try_files $uri $uri/ =404;
+              }
+
+              location ~ \.php$ {
+                  include snippets/fastcgi-php.conf;
+                  fastcgi_pass unix:/run/php/php{{ php_version }}-fpm.sock;
+              }
+
+              location ~ /\.ht {
+                  deny all;
+              }
+          }
+          
+    - name: Activer le site Greenshop
+      file:
+        src: /etc/nginx/sites-available/greenshop
+        dest: /etc/nginx/sites-enabled/greenshop
+        state: link
+        force: true
+
+    - name: Supprimer le site par défaut
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Modifier la ligne $host dans db.php pour mettre l'adresse IP
+      ansible.builtin.lineinfile:
+        path: /var/www/html/greenshop/db.php
+        search_string: "$host = 'localhost';"
+        line: "$host = '10.0.2.63';"
+
+    - name: Redémarrer Nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: S'assurer que le service PHP-FPM est démarré
+      service:
+        name: php{{ php_version }}-fpm
+        state: started
+        enabled: yes
