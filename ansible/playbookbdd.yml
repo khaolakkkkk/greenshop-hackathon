@@ -1,0 +1,114 @@
+---
+- name: Automatisation de l'installation et configuration de MariaDB
+  hosts: all
+  become: true
+  vars:
+    db_user: "greenshop_user"
+    db_password: "your_secure_password"
+    db_name: "greenshop"
+    db_dump_path: "/home/ubuntu/ansible/database_dump.sql"
+    db_host: "10.0.2.63"
+    ip_web1: "10.0.2.79"
+    ip_web2: "10.0.3.57"
+    ip_web3: "10.0.4.188"
+
+  tasks:
+    - name: Installer MariaDB et python3-pymysql
+      apt:
+        name:
+          - mariadb-server
+          - python3-pymysql
+        state: present
+        update_cache: yes
+
+    - name: Démarrer le service MariaDB
+      service:
+        name: mariadb
+        state: started
+        enabled: yes
+
+    - name: Créer la base de données si elle n'existe pas
+      shell: |
+        mysql -e "CREATE DATABASE IF NOT EXISTS {{ db_name }} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+      args:
+        executable: /bin/bash
+
+    - name: Créer l'utilisateur s'il n'existe pas
+      shell: |
+        mysql -e "CREATE USER IF NOT EXISTS '{{ db_user }}'@'localhost' IDENTIFIED BY '{{ db_password }}';"
+      args:
+        executable: /bin/bash
+
+    - name: Donner les privilèges à l'utilisateur sur la base de données
+      shell: |
+        mysql -e "GRANT ALL PRIVILEGES ON {{ db_name }}.* TO '{{ db_user }}'@'localhost'; FLUSH PRIVILEGES;"
+      args:
+        executable: /bin/bash
+
+    - name: Créer la base de données greenshop si elle n'existe pas (avec greenshop_user)
+      community.mysql.mysql_db:
+        name: "{{ db_name }}"
+        state: present
+        encoding: utf8mb4
+        collation: utf8mb4_unicode_ci
+        login_user: "{{ db_user }}"
+        login_password: "{{ db_password }}"
+        login_host: "localhost"
+
+    - name: Copier le fichier dump de la base de données sur la machine EC2
+      copy:
+        src: "{{ db_dump_path }}"
+        dest: "/tmp/database_dump.sql"
+        mode: '0644'
+    - name: Créer l'utilisateur web1
+      shell: |
+         mysql -e "CREATE USER IF NOT EXISTS '{{ db_user }}'@'{{ ip_web1 }}' IDENTIFIED BY '{{ db_password }}';"
+      args:
+        executable: /bin/bash
+
+    - name: Donner les privleges web1
+      shell: |
+        mysql -e "GRANT ALL PRIVILEGES ON {{ db_name }}.* TO '{{ db_user }}'@'{{ ip_web1 }}'; FLUSH PRIVILEGES;"
+      args:
+        executable: /bin/bash
+
+    - name: Créer l'utilisateur web2
+      shell: |
+         mysql -e "CREATE USER IF NOT EXISTS '{{ db_user }}'@'{{ ip_web2 }}' IDENTIFIED BY '{{ db_password }}';"
+      args:
+         executable: /bin/bash
+
+    - name: Donner les privleges web2
+      shell: |
+        mysql -e "GRANT ALL PRIVILEGES ON {{ db_name }}.* TO '{{ db_user }}'@'{{ ip_web2 }}'; FLUSH PRIVILEGES;"
+      args:
+        executable: /bin/bash
+    - name: Créer l'utilisateur web3
+      shell: |
+         mysql -e "CREATE USER IF NOT EXISTS '{{ db_user }}'@'{{ ip_web3 }}' IDENTIFIED BY '{{ db_password }}';"
+      args:
+         executable: /bin/bash
+
+    - name: Donner les privleges web3
+      shell: |
+        mysql -e "GRANT ALL PRIVILEGES ON {{ db_name }}.* TO '{{ db_user }}'@'{{ ip_web3 }}'; FLUSH PRIVILEGES;"
+      args:
+        executable: /bin/bash
+
+    - name: Importer la base de données depuis le fichier dump
+      shell: |
+        mysql -u "{{ db_user }}" -p"{{ db_password }}" "{{ db_name }}" < /tmp/database_dump.sql
+      args:
+        executable: /bin/bash
+
+    - name: Modifier le bind-address dans le fichier de configuration MariaDB
+      lineinfile:
+        path: /etc/mysql/mariadb.conf.d/50-server.cnf
+        regexp: '^bind-address'
+        line: 'bind-address = 0.0.0.0'
+        state: present
+
+    - name: Redémarrer MariaDB pour appliquer les changements de configuration
+      service:
+        name: mariadb
+        state: restarted
