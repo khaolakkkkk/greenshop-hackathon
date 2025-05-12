@@ -64,6 +64,7 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    cd /var/lib/jenkins/workspace/web-docker
                     docker-compose down || true
                     docker rm -f greenshop-db || true
                     docker rm -f greenshop-web || true
