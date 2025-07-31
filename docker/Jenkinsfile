@@ -28,7 +28,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    cd /var/lib/jenkins/workspace/web-docker
+                    cd /var/lib/jenkins/workspace/greeenshop-docker
                     docker build -t ${IMAGE_NAME} .
                     '''
                 }
