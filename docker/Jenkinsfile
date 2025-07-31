@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                   cp -R /var/lib/jenkins/greenshop-export/greenshop/* .
+                   sudo cp -r /home/ubuntu/greenshop-docker/* /var/lib/jenkins/workspace/greeenshop-docker/
                     '''
                 }
             }
