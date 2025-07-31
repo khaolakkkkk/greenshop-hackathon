@@ -14,22 +14,10 @@ pipeline {
             }
         }
 
-        stage('Prepare Workspace') {
-            steps {
-                script {
-                    sh '''
-                   #sudo cp -r /home/ubuntu/greenshop-docker/* /var/lib/jenkins/workspace/greeenshop-docker/
-                    '''
-                }
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh '''
-                    docker build -t ${IMAGE_NAME} .
-                    '''
+                    sh 'docker build -t $IMAGE_NAME .'
                 }
             }
         }
@@ -41,9 +29,7 @@ pipeline {
                         credentialsId: 'docker_hub_id', 
                         usernameVariable: 'DOCKER_USER', 
                         passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh '''
-                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin
-                        '''
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin'
                     }
                 }
             }
@@ -52,9 +38,7 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    sh '''
-                    docker push ${IMAGE_NAME}
-                    '''
+                    sh 'docker push $IMAGE_NAME'
                 }
             }
         }
@@ -63,12 +47,10 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    cd /var/lib/jenkins/workspace/greeenshop-docker
-                    docker-compose down || true
+                    docker compose down || true
                     docker rm -f greenshop-db || true
                     docker rm -f greenshop-web || true
-
-                    docker-compose up -d --build
+                    docker compose up -d --build
                     '''
                 }
             }
@@ -77,10 +59,10 @@ pipeline {
 
     post {
         success {
-            echo "Deployment Successful!"
+            echo "Deployment Successful"
         }
         failure {
-            echo "Deployment Failed!"
+            echo "Deployment Failed"
         }
     }
 }
