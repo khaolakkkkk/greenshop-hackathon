@@ -17,7 +17,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t $IMAGE_NAME .'
+                    // Correction ici : ajouter le bon chemin
+                    sh 'docker build -t $IMAGE_NAME docker'
                 }
             }
         }
@@ -47,6 +48,7 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    cd docker
                     docker compose down || true
                     docker rm -f greenshop-db || true
                     docker rm -f greenshop-web || true
@@ -66,3 +68,4 @@ pipeline {
         }
     }
 }
+
