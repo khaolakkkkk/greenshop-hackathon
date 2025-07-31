@@ -17,7 +17,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Correction ici : ajouter le bon chemin
                     sh 'docker build -t $IMAGE_NAME docker'
                 }
             }
@@ -68,4 +67,3 @@ pipeline {
         }
     }
 }
-
