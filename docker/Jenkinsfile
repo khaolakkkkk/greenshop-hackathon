@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                   cp -R ~/greenshop-export/greenshop/* .
+                   cp -R /home/ubuntu/greenshop-export/greenshop/* .
                     '''
                 }
             }
