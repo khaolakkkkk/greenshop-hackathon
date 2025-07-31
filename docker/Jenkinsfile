@@ -17,6 +17,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    sh 'cp -r /home/ubuntu/greenshop-docker/greenshop ./docker/'
                     sh 'docker build -t $IMAGE_NAME docker'
                 }
             }
@@ -67,3 +68,4 @@ pipeline {
         }
     }
 }
+
