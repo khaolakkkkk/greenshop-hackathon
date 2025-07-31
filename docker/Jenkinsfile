@@ -18,7 +18,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                   sudo cp -r /home/ubuntu/greenshop-docker/* /var/lib/jenkins/workspace/greeenshop-docker/
+                   #sudo cp -r /home/ubuntu/greenshop-docker/* /var/lib/jenkins/workspace/greeenshop-docker/
                     '''
                 }
             }
